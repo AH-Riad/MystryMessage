@@ -2,6 +2,7 @@ import { sendVerificationEmail } from "@/helpers/sendVerification";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/user";
 import bcrypt from "bcryptjs";
+import { json } from "stream/consumers";
 import { date } from "zod";
 
 export async function POST(request: Request) {
@@ -29,7 +30,25 @@ export async function POST(request: Request) {
     const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     if (existingUserByEmail) {
-      true; //  TODO: back here
+      if (existingUserByEmail.isverified) {
+        return Response.json(
+          {
+            success: false,
+            message: "User already exists with this email",
+          },
+          {
+            status: 400,
+          }
+        );
+
+        //Email exists but not verified
+      } else {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        existingUserByEmail.password = hashedPassword;
+        existingUserByEmail.verifyCode = verifyCode;
+        existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
+        await existingUserByEmail.save();
+      }
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -48,6 +67,7 @@ export async function POST(request: Request) {
       });
       await newUser.save();
     }
+
     //send verification email
     const emailResponse = await sendVerificationEmail(
       email,

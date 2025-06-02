@@ -12,7 +12,7 @@
     "@react-email/components": "^0.0.41",
     "bcryptjs": "^3.0.2",
     "mongodb": "^6.16.0",
-    "mongoose": "^8.15.0",
+    "mongoose": "^8.15.1",
     "next": "15.3.2",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",

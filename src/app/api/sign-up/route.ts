@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { sendVerificationEmail } from "@/helpers/sendVerification";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/user";
@@ -8,12 +9,13 @@ export async function POST(request: Request) {
 
   try {
     const { username, email, password } = await request.json();
+
     const existingUserVerfiedByUsername = await UserModel.findOne({
       username,
       isverified: true,
     });
     if (existingUserVerfiedByUsername) {
-      return Response.json(
+      return NextResponse.json(
         {
           success: false,
           message: "Username is already taken",
@@ -29,7 +31,7 @@ export async function POST(request: Request) {
 
     if (existingUserByEmail) {
       if (existingUserByEmail.isverified) {
-        return Response.json(
+        return NextResponse.json(
           {
             success: false,
             message: "User already exists with this email",
@@ -38,9 +40,8 @@ export async function POST(request: Request) {
             status: 400,
           }
         );
-
-        //Email exists but not verified
       } else {
+        // Email exists but not verified, update password and verifyCode
         const hashedPassword = await bcrypt.hash(password, 10);
         existingUserByEmail.password = hashedPassword;
         existingUserByEmail.verifyCode = verifyCode;
@@ -48,6 +49,7 @@ export async function POST(request: Request) {
         await existingUserByEmail.save();
       }
     } else {
+      // Create new user
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const expiryDate = new Date();
@@ -66,7 +68,7 @@ export async function POST(request: Request) {
       await newUser.save();
     }
 
-    //send verification email
+    // Send verification email
     const emailResponse = await sendVerificationEmail(
       email,
       username,
@@ -74,7 +76,7 @@ export async function POST(request: Request) {
     );
 
     if (!emailResponse.success) {
-      return Response.json(
+      return NextResponse.json(
         {
           success: false,
           message: emailResponse.message,
@@ -85,7 +87,7 @@ export async function POST(request: Request) {
       );
     }
 
-    return Response.json(
+    return NextResponse.json(
       {
         success: true,
         message: "User registered successfully. Please verify your email",
@@ -96,9 +98,9 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Error registering user", error);
-    return Response.json(
+    return NextResponse.json(
       {
-        succes: false,
+        success: false,
         message: "Error registering user",
       },
       {

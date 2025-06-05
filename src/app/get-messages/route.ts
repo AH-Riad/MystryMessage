@@ -29,5 +29,37 @@ export async function POST(request: Request) {
       { $sort: { "messages.createdAt": -1 } },
       { $group: { _id: "$_id", messages: { $push: "messages" } } },
     ]);
-  } catch (error) {}
+
+    if (!user) {
+      return Response.json(
+        {
+          success: false,
+          message: "User not found",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    return Response.json(
+      {
+        success: true,
+        messages: user[0].messages,
+      },
+      {
+        status: 200,
+      }
+    );
+  } catch (error) {
+    return Response.json(
+      {
+        success: false,
+        message: "An unexpected error occured",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
 }

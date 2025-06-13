@@ -4,9 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import Link from "next/link";
 import { useDebounceCallback } from "usehooks-ts";
 import { toast } from "sonner";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
@@ -33,7 +34,7 @@ const page = () => {
 
   useEffect(() => {
     const checkUsernameUnique = async () => {
-      if (username) {
+      if (debounced) {
         setIsCheckingUsername(true);
         setUsernameMessage("");
 
@@ -52,7 +53,26 @@ const page = () => {
         }
       }
     };
+    checkUsernameUnique();
   }, [debounced]);
+
+  const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
+    setIsSubmitting(true);
+    try {
+      const response = await axios.post<ApiResponse>("/api/sign-up", data);
+      toast("Success!", {
+        description: response.data.message,
+      });
+      router.replace(`/verify/${username}`);
+      setIsSubmitting(false);
+    } catch (error) {
+      console.log("Error in signup of user", error);
+      const AxiosError = error as AxiosError<ApiResponse>;
+      setUsernameMessage(
+        AxiosError.response?.data.message ?? "Error checking username"
+      );
+    }
+  };
 
   return <div>page</div>;
 };

@@ -68,9 +68,11 @@ const page = () => {
     } catch (error) {
       console.log("Error in signup of user", error);
       const AxiosError = error as AxiosError<ApiResponse>;
-      setUsernameMessage(
-        AxiosError.response?.data.message ?? "Error checking username"
-      );
+      let errorMessage = AxiosError.response?.data.message;
+      toast("Signup failed", {
+        description: errorMessage,
+      });
+      setIsSubmitting(false);
     }
   };
 

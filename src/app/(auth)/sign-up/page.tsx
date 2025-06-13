@@ -45,13 +45,13 @@ const page = () => {
 
   useEffect(() => {
     const checkUsernameUnique = async () => {
-      if (debounced) {
+      if (username) {
         setIsCheckingUsername(true);
         setUsernameMessage("");
 
         try {
           const response = await axios.get<ApiResponse>(
-            `/api/unique-username-check?username=${debounced}`
+            `/api/unique-username-check?username=${username}`
           );
           setUsernameMessage(response.data.message);
         } catch (error) {
@@ -65,13 +65,13 @@ const page = () => {
       }
     };
     checkUsernameUnique();
-  }, [debounced]);
+  }, [username]);
 
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     setIsSubmitting(true);
     try {
       const response = await axios.post<ApiResponse>("/api/sign-up", data);
-      toast("Success!", {
+      toast.success("Success!", {
         description: response.data.message,
       });
       router.replace(`/verify/${username}`);
@@ -80,7 +80,7 @@ const page = () => {
       console.log("Error in signup of user", error);
       const AxiosError = error as AxiosError<ApiResponse>;
       let errorMessage = AxiosError.response?.data.message;
-      toast("Signup failed", {
+      toast.error("Signup failed", {
         description: errorMessage,
       });
       setIsSubmitting(false);
@@ -111,7 +111,7 @@ const page = () => {
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
-                        setUsername(e.target.value);
+                        debounced(e.target.value);
                       }}
                     />
                   </FormControl>

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
 
 const page = () => {
   const [username, setUsername] = useState("");
@@ -145,7 +146,14 @@ const page = () => {
               )}
             />
             <Button type="submit" disabled={isSubmitting}>
-              Signup
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                  Signing up...
+                </>
+              ) : (
+                "Signup"
+              )}
             </Button>
           </form>
         </Form>

@@ -11,6 +11,17 @@ import { useRouter } from "next/navigation";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const page = () => {
   const [username, setUsername] = useState("");
@@ -39,7 +50,7 @@ const page = () => {
         setUsernameMessage("");
 
         try {
-          const response = await axios.get(
+          const response = await axios.get<ApiResponse>(
             `/api/unique-username-check?username=${debounced}`
           );
           setUsernameMessage(response.data.message);
@@ -76,7 +87,44 @@ const page = () => {
     }
   };
 
-  return <div>page</div>;
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-800">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+        <div className="text-center">
+          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
+            Join True Feedback
+          </h1>
+          <p className="mb-4">Sign up to start your anonymous adventure</p>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="username"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        setUsername(e.target.value);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit">Submit</Button>
+          </form>
+        </Form>
+      </div>
+    </div>
+  );
 };
 
 export default page;

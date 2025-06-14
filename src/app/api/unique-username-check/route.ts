@@ -21,7 +21,7 @@ export async function GET(request: Request) {
       return Response.json(
         {
           success: false,
-          message: "Inavalid query parameters",
+          message: result.error.issues[0].message,
         },
         {
           status: 400,
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
           message: "Username is already taken",
         },
         {
-          status: 500,
+          status: 409,
         }
       );
     }

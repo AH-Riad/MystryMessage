@@ -5,7 +5,7 @@ export const usernameValidation = z
   .min(3, "Username must be at least 3 characters")
   .max(40, "Username must be no more than 40 characters")
   .regex(
-    /^[a-zA-Z][a-zA-Z0-9_]{2,39}$/,
+    /^[a-zA-Z][a-zA-Z0-9_ ]{2,39}$/,
     "Username must not contain special characters"
   );
 

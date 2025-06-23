@@ -1,7 +1,6 @@
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/user";
 import bcrypt from "bcryptjs";
-import { error } from "console";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -11,7 +10,11 @@ export const authOptions: NextAuthOptions = {
       id: "credentials",
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text", placeholder: "A H Riad" },
+        identifier: {
+          label: "Username or Email",
+          type: "text",
+          placeholder: "A H Riad",
+        },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials: any): Promise<any> {
@@ -19,27 +22,29 @@ export const authOptions: NextAuthOptions = {
         try {
           const user = await UserModel.findOne({
             $or: [
-              { email: credentials.email },
-              { username: credentials.username },
+              { email: credentials.identifier },
+              { username: credentials.identifier },
             ],
           });
 
           if (!user) {
-            throw new Error("No user found with this email");
+            throw new Error("No user found with this username or email");
           }
 
           if (!user.isverified) {
             throw new Error("Verify your account first");
           }
+
           const isPasswordCorrect = await bcrypt.compare(
             credentials.password,
             user.password
           );
-          if (isPasswordCorrect) {
-            return user;
-          } else {
+
+          if (!isPasswordCorrect) {
             throw new Error("Incorrect Password");
           }
+
+          return user;
         } catch (err: any) {
           throw new Error(err);
         }
@@ -55,7 +60,6 @@ export const authOptions: NextAuthOptions = {
         session.user.isAcceptingMessages = token.isAcceptingMessages;
         session.user.username = token.username;
       }
-
       return session;
     },
     async jwt({ token, user }) {
@@ -65,7 +69,6 @@ export const authOptions: NextAuthOptions = {
         token.isAcceptingMessages = user.isAcceptingMessages;
         token.username = user.username;
       }
-
       return token;
     },
   },

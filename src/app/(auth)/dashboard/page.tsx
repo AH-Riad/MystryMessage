@@ -78,7 +78,23 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!session || !session.user) return;
-  });
+    fetchMessage();
+    fetchAcceptMessage();
+  }, [session, setValue, fetchAcceptMessage, fetchMessage]);
+
+  //handle switch change
+  const handleSwitch = async () => {
+    try {
+      const response = await axios.post<ApiResponse>("/api/accept-message", {
+        acceptMessages: !acceptMessages,
+      });
+      setValue("acceptMessages", !acceptMessages);
+      toast.success(response.data.message, {});
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse>;
+      toast.error(axiosError.response?.data.message, {});
+    }
+  };
   return <div>Dashboard content will be available here</div>;
 };
 

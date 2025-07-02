@@ -5,7 +5,7 @@ import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
 import { useSession } from "next-auth/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -76,6 +76,9 @@ const Dashboard = () => {
     [setIsLoading, setMessages]
   );
 
+  useEffect(() => {
+    if (!session || !session.user) return;
+  });
   return <div>Dashboard content will be available here</div>;
 };
 

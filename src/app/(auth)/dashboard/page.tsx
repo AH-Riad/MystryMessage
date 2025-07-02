@@ -18,6 +18,7 @@ const Dashboard = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSwtiching, setisSwitching] = useState(false);
+  const [profileUrl, setProfileUrl] = useState("");
 
   const handleDeletedMessage = (messgaeId: string) => {
     setMessages(messages.filter((message) => message._id !== messgaeId));
@@ -87,7 +88,7 @@ const Dashboard = () => {
     fetchAcceptMessage();
   }, [session, setValue, fetchAcceptMessage, fetchMessage]);
 
-  //handle switch change
+  // handle switch change
   const handleSwitch = async () => {
     try {
       const response = await axios.post<ApiResponse>("/api/accept-message", {
@@ -100,9 +101,15 @@ const Dashboard = () => {
       toast.error(axiosError.response?.data.message, {});
     }
   };
+
   const username = session?.user?.username;
-  const baseUrl = `${window.location.protocol}//${window.location.host}`;
-  const profileUrl = `${baseUrl}/u/${username}`;
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && username) {
+      const baseUrl = `${window.location.protocol}//${window.location.host}`;
+      setProfileUrl(`${baseUrl}/u/${username}`);
+    }
+  }, [username]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(profileUrl);

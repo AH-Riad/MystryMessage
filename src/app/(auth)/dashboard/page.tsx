@@ -95,6 +95,13 @@ const Dashboard = () => {
       toast.error(axiosError.response?.data.message, {});
     }
   };
+  const username = session?.user?.username;
+  const baseUrl = `${window.location.protocol}//${window.location.host}`;
+  const profileUrl = `${baseUrl}/u/${username}`;
+
+  if (!session || !session.user) {
+    return <div>Please LogIn</div>;
+  }
   return <div>Dashboard content will be available here</div>;
 };
 

@@ -25,22 +25,56 @@ const Dashboard = () => {
   });
 
   const { register, watch, setValue } = form;
-  const accceptMessages = watch("accepMessage");
+  const acceptMessages = watch("acceptMessages");
 
   const fetchAcceptMessage = useCallback(async () => {
     setisSwitching(true);
     try {
       const response = await axios.get<ApiResponse>("/api/accept-message");
-      setMessages(response.data.Messages || []);
-      if (refresh) {
-        toast.error("Error!", {
-          description:
-            AxiosError.response?.data.message ||
-            "Failed to fetch message setting",
-        });
+      setValue("acceptMessages", response.data.isAcceptingMessages ?? true);
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse>;
+      if (axiosError.response) {
+        toast.error(
+          axiosError.response.data.message ||
+            "Failed to fetch message acceptance status"
+        );
+      } else {
+        toast.error("An unexpected error occurred");
       }
-    } catch (error) {}
+    } finally {
+      setisSwitching(false);
+    }
   }, [setValue]);
+
+  const fetchMessage = useCallback(
+    async (refresh: boolean = false) => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get<ApiResponse>("/api/get-message");
+        setMessages(response.data.Messages || []);
+        if (refresh) {
+          toast.success("Refreshed!", {
+            description: "Message refreshed successful",
+          });
+        }
+      } catch (error) {
+        const axiosError = error as AxiosError<ApiResponse>;
+        if (axiosError.response) {
+          toast.error(
+            axiosError.response.data.message ||
+              "Failed to fetch message acceptance status"
+          );
+        } else {
+          toast.error("An unexpected error occurred");
+        }
+      } finally {
+        setIsLoading(false);
+        setisSwitching(false);
+      }
+    },
+    [setIsLoading, setMessages]
+  );
 
   return <div>Dashboard content will be available here</div>;
 };

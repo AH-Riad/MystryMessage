@@ -99,6 +99,11 @@ const Dashboard = () => {
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
   const profileUrl = `${baseUrl}/u/${username}`;
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(profileUrl);
+    toast.success("Copied");
+  };
+
   if (!session || !session.user) {
     return <div>Please LogIn</div>;
   }
